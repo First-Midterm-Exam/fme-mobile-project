@@ -1,4 +1,4 @@
-package com.example.fme_mobile_project
+package com.fme.asistente_readiness
 
 import io.flutter.embedding.android.FlutterActivity
 
