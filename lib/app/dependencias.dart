@@ -9,6 +9,7 @@ import '../data/repositories/asistente_repository.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/documento_repository.dart';
 import '../data/simulacion/backend_simulado.dart';
+import '../features/documento/camara_documentos.dart';
 
 /// Objetos compartidos por toda la app, creados una sola vez al arrancar.
 class Dependencias {
@@ -49,4 +50,7 @@ class Dependencias {
   final AppraisalRepository appraisals;
   final DocumentoRepository documentos;
   final AsistenteRepository asistente;
+
+  /// Tipada como la interfaz para que las pruebas puedan reemplazarla.
+  final CamaraDocumentos camara = CamaraDelSistema();
 }
