@@ -9,7 +9,6 @@ import '../../data/repositories/auth_repository.dart';
 
 enum EstadoSesion { verificando, sinSesion, autenticada }
 
-/// Estado global de la sesión. El router lo escucha para decidir la pantalla.
 class SesionController extends ChangeNotifier {
   SesionController({
     required AuthRepository auth,
@@ -32,13 +31,10 @@ class SesionController extends ChangeNotifier {
   EstadoSesion get estado => _estado;
   Usuario? get usuario => _usuario;
 
-  /// Mensaje para mostrar en el login (por ejemplo, sesión expirada).
   String? get aviso => _aviso;
 
-  /// Error de red al validar un token guardado; se ofrece "Reintentar".
   ApiException? get errorVerificacion => _errorVerificacion;
 
-  /// Si hay un token guardado, lo valida con `GET /me`.
   Future<void> verificarSesionGuardada() async {
     _estado = EstadoSesion.verificando;
     _errorVerificacion = null;
@@ -62,7 +58,6 @@ class SesionController extends ChangeNotifier {
     }
   }
 
-  /// Inicia sesión. Lanza [ApiException] si el servidor lo rechaza.
   Future<void> iniciarSesion({
     required String email,
     required String password,
@@ -74,10 +69,6 @@ class SesionController extends ChangeNotifier {
     _cambiarEstado(EstadoSesion.autenticada);
   }
 
-  /// Cierra la sesión localmente de inmediato y avisa al servidor en segundo
-  /// plano, para que el usuario no espere si no hay conexión.
-  ///
-  /// La petición toma el token al iniciarse, antes de que se borre.
   Future<void> cerrarSesion() async {
     _auth.cerrarSesion().ignore();
     await _limpiar();
@@ -85,8 +76,6 @@ class SesionController extends ChangeNotifier {
     _cambiarEstado(EstadoSesion.sinSesion);
   }
 
-  /// Descarta un token guardado que no se pudo validar (por ejemplo, sin
-  /// conexión) para permitir ingresar con otra cuenta.
   Future<void> descartarSesionGuardada() async {
     await _limpiar();
     _cambiarEstado(EstadoSesion.sinSesion);

@@ -7,7 +7,6 @@ class AppraisalRepository {
 
   final ApiClient _api;
 
-  /// Appraisals activos a los que el usuario tiene acceso.
   Future<List<Appraisal>> listarActivos() async {
     final json = await _api.get('/appraisals', consulta: {'estado': 'activo'});
     return parsearRespuesta(() => Appraisal.listaFromJson(json));

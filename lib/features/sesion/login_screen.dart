@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import '../../app/tema.dart';
 import '../../core/network/api_exception.dart';
 import '../../shared/widgets/aviso_banner.dart';
 import '../../shared/widgets/error_reintentar.dart';
@@ -9,10 +10,6 @@ import '../../shared/widgets/marca.dart';
 import 'sesion_controller.dart';
 import 'validadores.dart';
 
-/// Pantalla 1: inicio de sesión.
-///
-/// Mientras se valida un token guardado muestra un indicador de carga; si la
-/// validación falla por la red, ofrece reintentar o usar otra cuenta.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -51,12 +48,8 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
-/// Encabezado de marca con degradado y una tarjeta flotante para el contenido.
 class _DisenoLogin extends StatelessWidget {
   const _DisenoLogin({required this.child});
-
-  static const _altoEncabezado = 300.0;
-  static const _inicioTarjeta = 224.0;
 
   final Widget child;
 
@@ -66,66 +59,80 @@ class _DisenoLogin extends StatelessWidget {
     final superiorSeguro = MediaQuery.paddingOf(context).top;
 
     return SingleChildScrollView(
-      child: Stack(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: _altoEncabezado + superiorSeguro,
-            width: double.infinity,
-            child: FondoMarca(
-              radioInferior: 36,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(28, superiorSeguro + 32, 28, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const LogoMarca(),
-                    const SizedBox(height: 20),
-                    Text(
-                      'Asistente Readiness',
-                      style: tema.textTheme.headlineSmall?.copyWith(
-                        color: Colors.white,
-                      ),
+          ColoredBox(
+            color: ColoresMarca.marinoProfundo,
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(24, superiorSeguro + 40, 24, 72),
+              child: Row(
+                children: [
+                  const LogoMarca(),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Asistente Readiness',
+                          style: tema.textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'CMMI Appraisal Readiness Platform',
+                          style: tema.textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'CMMI Appraisal Readiness Platform',
-                      style: tema.textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.75),
-                        letterSpacing: 0.3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Transform.translate(
+            offset: const Offset(0, -44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 440),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: tema.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(TemaApp.radioTarjeta),
+                      border: Border.all(
+                        color: tema.colorScheme.outlineVariant,
                       ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                  ],
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+                      child: child,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              _inicioTarjeta + superiorSeguro,
-              20,
-              24,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 440),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: tema.colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.10),
-                        blurRadius: 32,
-                        offset: const Offset(0, 12),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 28, 24, 24),
-                    child: child,
-                  ),
-                ),
+          Transform.translate(
+            offset: const Offset(0, -28),
+            child: Text(
+              'Uso exclusivo para personal autorizado.',
+              textAlign: TextAlign.center,
+              style: tema.textTheme.bodySmall?.copyWith(
+                color: tema.colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -135,7 +142,6 @@ class _DisenoLogin extends StatelessWidget {
   }
 }
 
-/// Formulario de correo y contraseña.
 class FormularioLogin extends StatefulWidget {
   const FormularioLogin({super.key});
 
@@ -244,7 +250,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
               ],
               decoration: const InputDecoration(
                 labelText: 'Correo',
-                prefixIcon: Icon(Icons.alternate_email_rounded),
+                prefixIcon: Icon(Icons.person_outline),
               ),
               validator: Validadores.correo,
             ),
@@ -259,7 +265,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
               onFieldSubmitted: (_) => _ingresar(),
               decoration: InputDecoration(
                 labelText: 'Contraseña',
-                prefixIcon: const Icon(Icons.lock_outline_rounded),
+                prefixIcon: const Icon(Icons.lock_outline),
                 suffixIcon: IconButton(
                   tooltip: _ocultarContrasena
                       ? 'Mostrar contraseña'
@@ -291,14 +297,7 @@ class _FormularioLoginState extends State<FormularioLogin> {
                         Text('Ingresando...'),
                       ],
                     )
-                  : const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('Ingresar'),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_rounded, size: 20),
-                      ],
-                    ),
+                  : const Text('Ingresar'),
             ),
           ],
         ),

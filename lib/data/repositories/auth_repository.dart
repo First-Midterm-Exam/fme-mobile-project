@@ -7,7 +7,6 @@ class AuthRepository {
 
   static const nombreDispositivo = 'asistente-movil';
 
-  /// Mensajes de login que no revelan si el correo existe.
   static const mensajesLogin = {
     401: 'El correo o la contraseña no son correctos.',
     422: 'El correo o la contraseña no son correctos.',

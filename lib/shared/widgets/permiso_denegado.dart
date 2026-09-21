@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Explica para qué se necesita un permiso denegado y ofrece cómo darlo.
+import 'estructura.dart';
+
 class PermisoDenegado extends StatelessWidget {
   const PermisoDenegado({
-    required this.icono,
     required this.titulo,
     required this.explicacion,
     required this.permanente,
@@ -13,11 +13,8 @@ class PermisoDenegado extends StatelessWidget {
     super.key,
   });
 
-  final IconData icono;
   final String titulo;
   final String explicacion;
-
-  /// Si es `true`, Android ya no muestra el diálogo y hay que ir a ajustes.
   final bool permanente;
   final VoidCallback alReintentar;
   final VoidCallback alAbrirAjustes;
@@ -26,72 +23,79 @@ class PermisoDenegado extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
-    final colores = tema.colorScheme;
 
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: colores.errorContainer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icono, size: 40, color: colores.error),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              titulo,
-              textAlign: TextAlign.center,
-              style: tema.textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              explicacion,
-              textAlign: TextAlign.center,
-              style: tema.textTheme.bodyMedium?.copyWith(
-                color: colores.onSurfaceVariant,
-                height: 1.4,
-              ),
-            ),
-            if (permanente) ...[
-              const SizedBox(height: 12),
-              Text(
-                'Actívalo en Ajustes > Permisos y luego vuelve a la app.',
-                textAlign: TextAlign.center,
-                style: tema.textTheme.bodySmall?.copyWith(
-                  color: colores.onSurfaceVariant,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: [
+              const TituloSeccion('Permiso requerido'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(titulo, style: tema.textTheme.titleMedium),
+                      const SizedBox(height: 8),
+                      TextoSecundario(explicacion),
+                      if (permanente) ...[
+                        const SizedBox(height: 12),
+                        const Divider(),
+                        const SizedBox(height: 12),
+                        const TextoSecundario(
+                          'El permiso está desactivado. Actívalo en Ajustes > '
+                          'Permisos y luego vuelve a la aplicación.',
+                        ),
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ],
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: permanente
-                  ? FilledButton.icon(
-                      onPressed: alAbrirAjustes,
-                      icon: const Icon(Icons.settings_outlined),
-                      label: const Text('Abrir ajustes'),
-                    )
-                  : FilledButton(
-                      onPressed: alReintentar,
-                      child: const Text('Dar permiso'),
-                    ),
-            ),
-            const SizedBox(height: 8),
-            if (permanente)
-              TextButton(
-                onPressed: alReintentar,
-                child: const Text('Ya lo activé, intentar de nuevo'),
-              ),
-            if (alVolver != null)
-              TextButton(onPressed: alVolver, child: const Text('Volver')),
-          ],
+          ),
         ),
-      ),
+        BarraAccionInferior(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (permanente)
+                FilledButton(
+                  onPressed: alAbrirAjustes,
+                  child: const Text('Abrir ajustes'),
+                )
+              else
+                FilledButton(
+                  onPressed: alReintentar,
+                  child: const Text('Dar permiso'),
+                ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  if (alVolver != null)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: alVolver,
+                        child: const Text('Volver'),
+                      ),
+                    ),
+                  if (alVolver != null && permanente) const SizedBox(width: 12),
+                  if (permanente)
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: alReintentar,
+                        child: const Text('Intentar de nuevo'),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

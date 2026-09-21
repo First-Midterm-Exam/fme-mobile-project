@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../app/tema.dart';
 import '../../data/models/usuario.dart';
 import 'sesion_controller.dart';
 
-/// Menú del encabezado con el nombre y rol del usuario y "Cerrar sesión".
 class MenuUsuario extends StatelessWidget {
   const MenuUsuario({super.key});
 
@@ -49,13 +47,14 @@ class MenuUsuario extends StatelessWidget {
       onSelected: (accion) => accion(),
       icon: CircleAvatar(
         radius: 16,
-        backgroundColor: ColoresMarca.turquesa,
+        backgroundColor: Colors.white.withValues(alpha: 0.16),
         child: Text(
           _iniciales(usuario?.nombre ?? ''),
           style: const TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
             color: Colors.white,
+            letterSpacing: 0.5,
           ),
         ),
       ),

@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../app/tema.dart';
 import '../../data/models/revision_formato.dart';
+import '../../shared/widgets/estructura.dart';
 
-/// Resultado de la revisión de formato de un documento.
 class ResultadoRevisionView extends StatelessWidget {
   const ResultadoRevisionView({
     required this.resultado,
@@ -21,58 +21,67 @@ class ResultadoRevisionView extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
     final hallazgos = resultado.hallazgosOrdenados;
+    final tipo = resultado.tipoDetectado;
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _Insignia(cumple: resultado.cumple),
-        const SizedBox(height: 12),
-        _PuntajeYTipo(
-          puntaje: resultado.puntaje,
-          tipo: resultado.tipoDetectado,
-        ),
-        if (resultado.resumen.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+            children: [
+              _Insignia(cumple: resultado.cumple),
+              const TituloSeccion('Detalle'),
+              GrupoSeccion(
                 children: [
-                  Text('Resumen', style: tema.textTheme.titleMedium),
-                  const SizedBox(height: 6),
-                  Text(
-                    resultado.resumen,
-                    style: tema.textTheme.bodyMedium?.copyWith(height: 1.4),
+                  _FilaPuntaje(puntaje: resultado.puntaje),
+                  _FilaDato(
+                    etiqueta: 'Tipo detectado',
+                    valor: tipo == null || tipo.isEmpty
+                        ? 'No identificado'
+                        : tipo,
                   ),
                 ],
               ),
-            ),
+              if (resultado.resumen.isNotEmpty) ...[
+                const TituloSeccion('Resumen'),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      resultado.resumen,
+                      style: tema.textTheme.bodyMedium?.copyWith(height: 1.4),
+                    ),
+                  ),
+                ),
+              ],
+              TituloSeccion(
+                hallazgos.isEmpty
+                    ? 'Hallazgos'
+                    : 'Hallazgos (${hallazgos.length})',
+              ),
+              if (hallazgos.isEmpty)
+                const Card(
+                  child: Padding(
+                    padding: EdgeInsets.all(16),
+                    child: TextoSecundario('No se encontraron hallazgos.'),
+                  ),
+                )
+              else
+                GrupoSeccion(
+                  children: [
+                    for (final hallazgo in hallazgos)
+                      FilaHallazgo(hallazgo: hallazgo),
+                  ],
+                ),
+            ],
           ),
-        ],
-        const SizedBox(height: 20),
-        Text(
-          hallazgos.isEmpty ? 'Hallazgos' : 'Hallazgos (${hallazgos.length})',
-          style: tema.textTheme.titleMedium,
         ),
-        const SizedBox(height: 10),
-        if (hallazgos.isEmpty)
-          Text(
-            'No se encontraron hallazgos.',
-            style: tema.textTheme.bodyMedium?.copyWith(
-              color: tema.colorScheme.onSurfaceVariant,
-            ),
-          )
-        else
-          for (final hallazgo in hallazgos) ...[
-            TarjetaHallazgo(hallazgo: hallazgo),
-            const SizedBox(height: 10),
-          ],
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: alRevisarOtro,
-          icon: const Icon(Icons.document_scanner_outlined),
-          label: const Text('Revisar otro documento'),
+        BarraAccionInferior(
+          child: FilledButton(
+            onPressed: alRevisarOtro,
+            child: const Text('Revisar otro documento'),
+          ),
         ),
       ],
     );
@@ -86,33 +95,46 @@ class _Insignia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tema = Theme.of(context);
     final estado = ColoresEstado.de(context);
     final color = cumple ? estado.exito : estado.peligro;
     final fondo = cumple ? estado.exitoFondo : estado.peligroFondo;
 
     return Container(
       key: ResultadoRevisionView.claveInsignia,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 22),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: fondo,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        borderRadius: BorderRadius.circular(TemaApp.radioTarjeta),
+        border: Border.all(color: color.withValues(alpha: 0.45)),
       ),
       child: Row(
         children: [
           Icon(
-            cumple ? Icons.verified_rounded : Icons.cancel_rounded,
+            cumple ? Icons.check_circle : Icons.cancel,
             color: color,
-            size: 44,
+            size: 36,
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 14),
           Expanded(
-            child: Text(
-              cumple ? 'Cumple el formato' : 'No cumple el formato',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w800,
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  cumple ? 'Cumple el formato' : 'No cumple el formato',
+                  style: tema.textTheme.titleLarge?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Resultado del análisis de formato',
+                  style: tema.textTheme.bodySmall?.copyWith(
+                    color: tema.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -121,11 +143,10 @@ class _Insignia extends StatelessWidget {
   }
 }
 
-class _PuntajeYTipo extends StatelessWidget {
-  const _PuntajeYTipo({required this.puntaje, required this.tipo});
+class _FilaPuntaje extends StatelessWidget {
+  const _FilaPuntaje({required this.puntaje});
 
   final int puntaje;
-  final String? tipo;
 
   @override
   Widget build(BuildContext context) {
@@ -136,59 +157,57 @@ class _PuntajeYTipo extends StatelessWidget {
       >= 50 => estado.advertencia,
       _ => estado.peligro,
     };
-    final tipoTexto = (tipo == null || tipo!.isEmpty)
-        ? 'No identificado'
-        : tipo!;
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            SizedBox.square(
-              dimension: 84,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  CircularProgressIndicator(
-                    value: puntaje / 100,
-                    strokeWidth: 8,
-                    strokeCap: StrokeCap.round,
-                    color: color,
-                    backgroundColor: tema.colorScheme.surfaceContainerHighest,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  'Puntaje',
+                  style: tema.textTheme.bodyMedium?.copyWith(
+                    color: tema.colorScheme.onSurfaceVariant,
                   ),
-                  Center(
-                    child: Text(
-                      '$puntaje',
-                      key: ResultadoRevisionView.clavePuntaje,
-                      style: tema.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _Dato(etiqueta: 'Puntaje', valor: '$puntaje de 100'),
-                  const SizedBox(height: 12),
-                  _Dato(etiqueta: 'Tipo detectado', valor: tipoTexto),
-                ],
+              Text(
+                '$puntaje',
+                key: ResultadoRevisionView.clavePuntaje,
+                style: tema.textTheme.headlineSmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
+              Text(
+                ' / 100',
+                style: tema.textTheme.bodyMedium?.copyWith(
+                  color: tema.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(3),
+            child: LinearProgressIndicator(
+              value: puntaje / 100,
+              minHeight: 6,
+              color: color,
+              backgroundColor: tema.colorScheme.surfaceContainerHighest,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class _Dato extends StatelessWidget {
-  const _Dato({required this.etiqueta, required this.valor});
+class _FilaDato extends StatelessWidget {
+  const _FilaDato({required this.etiqueta, required this.valor});
 
   final String etiqueta;
   final String valor;
@@ -196,26 +215,32 @@ class _Dato extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          etiqueta.toUpperCase(),
-          style: tema.textTheme.labelSmall?.copyWith(
-            color: tema.colorScheme.onSurfaceVariant,
-            letterSpacing: 1,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      child: Row(
+        children: [
+          Text(
+            etiqueta,
+            style: tema.textTheme.bodyMedium?.copyWith(
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(valor, style: tema.textTheme.titleMedium),
-      ],
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              valor,
+              textAlign: TextAlign.end,
+              style: tema.textTheme.titleSmall,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Un hallazgo con el color y el ícono de su severidad.
-class TarjetaHallazgo extends StatelessWidget {
-  const TarjetaHallazgo({required this.hallazgo, super.key});
+class FilaHallazgo extends StatelessWidget {
+  const FilaHallazgo({required this.hallazgo, super.key});
 
   final Hallazgo hallazgo;
 
@@ -224,70 +249,52 @@ class TarjetaHallazgo extends StatelessWidget {
     final tema = Theme.of(context);
     final estilo = EstiloSeveridad.de(context, hallazgo.severidad);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(TemaApp.radio),
-      child: Container(
-        decoration: BoxDecoration(
-          color: tema.colorScheme.surface,
-          border: Border(left: BorderSide(color: estilo.color, width: 4)),
-        ),
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(estilo.icono, color: estilo.color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          hallazgo.elemento.isEmpty
-                              ? 'Hallazgo'
-                              : hallazgo.elemento,
-                          style: tema.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(estilo.icono, color: estilo.color, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        hallazgo.elemento.isEmpty
+                            ? 'Hallazgo'
+                            : hallazgo.elemento,
+                        style: tema.textTheme.titleSmall,
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: estilo.fondo,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          estilo.etiqueta,
-                          style: TextStyle(
-                            color: estilo.color,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (hallazgo.mensaje.isNotEmpty) ...[
-                    const SizedBox(height: 4),
-                    Text(hallazgo.mensaje, style: tema.textTheme.bodyMedium),
+                    ),
+                    Etiqueta(
+                      texto: estilo.etiqueta,
+                      color: estilo.color,
+                      fondo: estilo.fondo,
+                    ),
                   ],
+                ),
+                if (hallazgo.mensaje.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    hallazgo.mensaje,
+                    style: tema.textTheme.bodyMedium?.copyWith(
+                      color: tema.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
                 ],
-              ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Color, ícono y etiqueta de cada severidad.
 class EstiloSeveridad {
   const EstiloSeveridad({
     required this.color,
@@ -302,19 +309,19 @@ class EstiloSeveridad {
       Severidad.alta => EstiloSeveridad(
         color: estado.peligro,
         fondo: estado.peligroFondo,
-        icono: Icons.error_rounded,
+        icono: Icons.error,
         etiqueta: 'Alta',
       ),
       Severidad.media => EstiloSeveridad(
         color: estado.advertencia,
         fondo: estado.advertenciaFondo,
-        icono: Icons.warning_amber_rounded,
+        icono: Icons.warning,
         etiqueta: 'Media',
       ),
       Severidad.baja => EstiloSeveridad(
         color: estado.info,
         fondo: estado.infoFondo,
-        icono: Icons.info_rounded,
+        icono: Icons.info,
         etiqueta: 'Baja',
       ),
     };

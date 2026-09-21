@@ -1,6 +1,3 @@
-/// Validaciones locales del formulario de inicio de sesión.
-///
-/// Devuelven `null` si el valor es válido o el mensaje de error en español.
 abstract final class Validadores {
   static final _formatoCorreo = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
 

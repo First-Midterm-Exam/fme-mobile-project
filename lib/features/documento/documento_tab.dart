@@ -6,13 +6,12 @@ import 'package:provider/provider.dart';
 import '../../data/repositories/documento_repository.dart';
 import '../../shared/formatos.dart';
 import '../../shared/widgets/aviso_banner.dart';
-import '../../shared/widgets/marca.dart';
+import '../../shared/widgets/estructura.dart';
 import '../../shared/widgets/permiso_denegado.dart';
 import 'camara_documentos.dart';
 import 'documento_controller.dart';
 import 'resultado_revision_view.dart';
 
-/// Pestaña "Documento": revisar el formato de un documento con la cámara.
 class DocumentoTab extends StatelessWidget {
   const DocumentoTab({super.key});
 
@@ -43,8 +42,7 @@ class _ContenidoDocumento extends StatelessWidget {
     final Widget contenido = switch (controlador.paso) {
       PasoDocumento.inicio => const _Inicio(),
       PasoDocumento.permisoDenegado => PermisoDenegado(
-        icono: Icons.no_photography_outlined,
-        titulo: 'Necesitamos acceso a la cámara',
+        titulo: 'Se necesita acceso a la cámara',
         explicacion:
             'La cámara se usa solo para fotografiar el documento que quieres '
             'revisar. La foto se envía al servidor para analizar su formato '
@@ -64,7 +62,7 @@ class _ContenidoDocumento extends StatelessWidget {
     };
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200),
       child: KeyedSubtree(key: ValueKey(controlador.paso), child: contenido),
     );
   }
@@ -73,113 +71,101 @@ class _ContenidoDocumento extends StatelessWidget {
 class _Inicio extends StatelessWidget {
   const _Inicio();
 
+  static const _recomendaciones = [
+    'Usa buena luz y evita reflejos o sombras.',
+    'Encuadra la página completa, sin cortar los bordes.',
+    'Mantén el teléfono paralelo al documento.',
+  ];
+
   @override
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
     final controlador = context.watch<DocumentoController>();
     final aviso = controlador.aviso;
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: FondoMarca(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            children: [
+              const TituloSeccion('Revisión de formato'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Verifica si un documento cumple el formato',
+                        style: tema.textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 6),
+                      const TextoSecundario(
+                        'Toma una foto del documento. El servidor analizará su '
+                        'estructura y te indicará los hallazgos ordenados por '
+                        'severidad.',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const TituloSeccion('Recomendaciones'),
+              GrupoSeccion(
                 children: [
-                  const LogoMarca(tamano: 52),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Revisión de formato',
-                    style: tema.textTheme.titleLarge?.copyWith(
-                      color: Colors.white,
+                  for (var i = 0; i < _recomendaciones.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: 24,
+                            child: Text(
+                              '${i + 1}.',
+                              style: tema.textTheme.bodyMedium?.copyWith(
+                                color: tema.colorScheme.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              _recomendaciones[i],
+                              style: tema.textTheme.bodyMedium,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Toma una foto del documento y verificaremos si cumple '
-                    'el formato esperado por la organización.',
-                    style: tema.textTheme.bodyMedium?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.8),
-                      height: 1.4,
-                    ),
-                  ),
                 ],
               ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Card(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _Consejo(
-                  icono: Icons.wb_sunny_outlined,
-                  texto: 'Usa buena luz y evita reflejos o sombras.',
-                ),
-                _Consejo(
-                  icono: Icons.crop_free_rounded,
-                  texto: 'Encuadra la página completa, sin cortar bordes.',
-                ),
-                _Consejo(
-                  icono: Icons.straighten_rounded,
-                  texto: 'Mantén el teléfono paralelo al documento.',
-                ),
+              if (aviso != null) ...[
+                const SizedBox(height: 16),
+                AvisoBanner(mensaje: aviso),
               ],
-            ),
+            ],
           ),
         ),
-        if (aviso != null) ...[
-          const SizedBox(height: 16),
-          AvisoBanner(mensaje: aviso),
-        ],
-        const SizedBox(height: 24),
-        FilledButton.icon(
-          onPressed: controlador.abriendoCamara ? null : controlador.tomarFoto,
-          icon: controlador.abriendoCamara
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.photo_camera_outlined),
-          label: const Text('Tomar foto del documento'),
+        BarraAccionInferior(
+          child: FilledButton.icon(
+            onPressed: controlador.abriendoCamara
+                ? null
+                : controlador.tomarFoto,
+            icon: controlador.abriendoCamara
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.photo_camera_outlined, size: 20),
+            label: const Text('Tomar foto del documento'),
+          ),
         ),
       ],
-    );
-  }
-}
-
-class _Consejo extends StatelessWidget {
-  const _Consejo({required this.icono, required this.texto});
-
-  final IconData icono;
-  final String texto;
-
-  @override
-  Widget build(BuildContext context) {
-    final colores = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: colores.secondaryContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icono, size: 20, color: colores.onSecondaryContainer),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: Text(texto)),
-        ],
-      ),
     );
   }
 }
@@ -195,19 +181,33 @@ class _VistaPrevia extends StatelessWidget {
     final aviso = controlador.aviso;
     final tema = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+          child: TituloSeccion(
+            'Vista previa',
+            accion: foto == null || analizando
+                ? null
+                : Text(
+                    '${Formatos.tamano(foto.length)} · JPEG',
+                    style: tema.textTheme.labelMedium?.copyWith(
+                      color: tema.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+          ),
+        ),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: radioTarjeta,
               child: Stack(
                 fit: StackFit.expand,
                 children: [
                   ColoredBox(
-                    color: const Color(0xFF0B1220),
+                    color: const Color(0xFF1A2230),
                     child: foto == null
                         ? const SizedBox.shrink()
                         : LayoutBuilder(
@@ -230,52 +230,43 @@ class _VistaPrevia extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          if (foto != null && !analizando)
-            Text(
-              'Foto lista · ${Formatos.tamano(foto.length)} · JPEG',
-              textAlign: TextAlign.center,
-              style: tema.textTheme.bodySmall?.copyWith(
-                color: tema.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          if (aviso != null) ...[
-            const SizedBox(height: 12),
-            AvisoBanner(
+        ),
+        if (aviso != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: AvisoBanner(
               mensaje: aviso,
               alReintentar: controlador.avisoReintentable
                   ? controlador.enviar
                   : null,
             ),
-          ],
-          if (!analizando) ...[
-            const SizedBox(height: 12),
-            Row(
+          ),
+        const SizedBox(height: 12),
+        if (!analizando)
+          BarraAccionInferior(
+            child: Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
+                  child: OutlinedButton(
                     onPressed: controlador.abriendoCamara
                         ? null
                         : controlador.tomarFoto,
-                    icon: const Icon(Icons.replay_rounded),
-                    label: const Text('Tomar otra'),
+                    child: const Text('Tomar otra'),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: FilledButton.icon(
+                  child: FilledButton(
                     onPressed: controlador.puedeEnviar
                         ? controlador.enviar
                         : null,
-                    icon: const Icon(Icons.send_rounded),
-                    label: const Text('Enviar'),
+                    child: const Text('Enviar'),
                   ),
                 ),
               ],
             ),
-          ],
-        ],
-      ),
+          ),
+      ],
     );
   }
 }
@@ -287,24 +278,24 @@ class _Analizando extends StatelessWidget {
   Widget build(BuildContext context) {
     final tema = Theme.of(context);
     return ColoredBox(
-      color: Colors.black.withValues(alpha: 0.6),
+      color: Colors.black.withValues(alpha: 0.65),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             const SizedBox.square(
-              dimension: 56,
+              dimension: 40,
               child: CircularProgressIndicator(
-                strokeWidth: 5,
+                strokeWidth: 3,
                 color: Colors.white,
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             Text(
               'Analizando el formato...',
               style: tema.textTheme.titleMedium?.copyWith(color: Colors.white),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: 4),
             Text(
               'Puede tardar hasta un minuto.',
               style: tema.textTheme.bodySmall?.copyWith(color: Colors.white70),

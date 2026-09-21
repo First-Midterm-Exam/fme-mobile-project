@@ -9,9 +9,11 @@ import '../data/repositories/asistente_repository.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/documento_repository.dart';
 import '../data/simulacion/backend_simulado.dart';
+import '../features/asistente/servicios/archivos_reporte.dart';
+import '../features/asistente/servicios/lector_voz.dart';
+import '../features/asistente/servicios/reconocedor_voz.dart';
 import '../features/documento/camara_documentos.dart';
 
-/// Objetos compartidos por toda la app, creados una sola vez al arrancar.
 class Dependencias {
   Dependencias._({
     required this.config,
@@ -51,6 +53,8 @@ class Dependencias {
   final DocumentoRepository documentos;
   final AsistenteRepository asistente;
 
-  /// Tipada como la interfaz para que las pruebas puedan reemplazarla.
   final CamaraDocumentos camara = CamaraDelSistema();
+  final ReconocedorVoz reconocedor = ReconocedorVozDelSistema();
+  final LectorVoz lector = LectorVozDelSistema();
+  final ArchivosReporte archivos = ArchivosReporteDelSistema();
 }

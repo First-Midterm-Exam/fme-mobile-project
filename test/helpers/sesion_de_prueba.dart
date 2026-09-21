@@ -5,7 +5,6 @@ import 'package:fme_mobile_project/data/repositories/auth_repository.dart';
 import 'package:fme_mobile_project/features/sesion/sesion_controller.dart';
 import 'package:http/testing.dart';
 
-/// Arma un [SesionController] real cuyo HTTP responde con [manejador].
 class SesionDePrueba {
   SesionDePrueba(
     MockClientHandler manejador, {

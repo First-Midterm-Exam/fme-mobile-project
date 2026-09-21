@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../data/models/appraisal.dart';
+import '../../shared/widgets/estructura.dart';
 import 'appraisal_controller.dart';
 import 'tarjeta_appraisal.dart';
 
-/// Selector del appraisal activo para el encabezado de la pantalla principal.
-class SelectorAppraisal extends StatelessWidget {
-  const SelectorAppraisal({super.key});
+class BarraContextoAppraisal extends StatelessWidget
+    implements PreferredSizeWidget {
+  const BarraContextoAppraisal({super.key});
+
+  static const alto = 64.0;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(alto);
 
   Future<void> _mostrarOpciones(BuildContext context) {
     final controlador = context.read<AppraisalController>();
@@ -29,44 +35,51 @@ class SelectorAppraisal extends StatelessWidget {
       (c) => c.seleccionado,
     );
     final tema = Theme.of(context);
+    final colores = tema.colorScheme;
 
-    return Semantics(
-      button: true,
-      label: 'Cambiar appraisal activo',
+    return Material(
+      color: colores.surface,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
         onTap: () => _mostrarOpciones(context),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+        child: Container(
+          height: alto,
+          padding: const EdgeInsets.only(left: 16, right: 8),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: colores.outlineVariant)),
+          ),
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
+              Expanded(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'APPRAISAL ACTIVO',
                       style: tema.textTheme.labelSmall?.copyWith(
-                        color: Colors.white70,
-                        letterSpacing: 1.2,
+                        color: colores.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
-                      appraisal?.nombre ?? 'Elige un appraisal',
+                      [
+                        appraisal?.nombre ?? 'Sin seleccionar',
+                        if (appraisal != null && appraisal.proyecto.isNotEmpty)
+                          appraisal.proyecto,
+                      ].join('  ·  '),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: tema.textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: tema.textTheme.titleSmall,
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 4),
-              const Icon(Icons.expand_more_rounded, color: Colors.white),
+              TextButton(
+                onPressed: () => _mostrarOpciones(context),
+                child: const Text('Cambiar'),
+              ),
             ],
           ),
         ),
@@ -85,25 +98,27 @@ class _HojaAppraisals extends StatelessWidget {
 
     return DraggableScrollableSheet(
       expand: false,
-      initialChildSize: 0.6,
+      initialChildSize: 0.55,
       maxChildSize: 0.9,
       builder: (context, desplazamiento) => ListView(
         controller: desplazamiento,
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
           Text('Cambiar appraisal', style: tema.textTheme.titleLarge),
-          const SizedBox(height: 16),
-          for (final appraisal in controlador.appraisals) ...[
-            TarjetaAppraisal(
-              appraisal: appraisal,
-              seleccionado: appraisal.id == controlador.seleccionado?.id,
-              alTocar: () {
-                controlador.seleccionar(appraisal);
-                Navigator.of(context).pop();
-              },
-            ),
-            const SizedBox(height: 12),
-          ],
+          const TituloSeccion('Appraisals activos'),
+          GrupoSeccion(
+            children: [
+              for (final appraisal in controlador.appraisals)
+                FilaAppraisal(
+                  appraisal: appraisal,
+                  seleccionado: appraisal.id == controlador.seleccionado?.id,
+                  alTocar: () {
+                    controlador.seleccionar(appraisal);
+                    Navigator.of(context).pop();
+                  },
+                ),
+            ],
+          ),
         ],
       ),
     );

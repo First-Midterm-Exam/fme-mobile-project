@@ -1,12 +1,10 @@
 import '../../core/network/lectura_json.dart';
 
-/// Severidad de un hallazgo, en el orden en que se muestran.
 enum Severidad {
   alta,
   media,
   baja;
 
-  /// Convierte el texto del backend. Un valor desconocido se trata como baja.
   static Severidad desdeTexto(String? texto) =>
       switch (texto?.trim().toLowerCase()) {
         'alta' => Severidad.alta,
@@ -33,7 +31,6 @@ class Hallazgo {
   final String mensaje;
 }
 
-/// Resultado de `POST /documentos/revision-formato`.
 class RevisionFormato {
   const RevisionFormato({
     required this.cumple,
@@ -61,14 +58,11 @@ class RevisionFormato {
 
   final bool cumple;
 
-  /// Puntaje de 0 a 100.
   final int puntaje;
   final String? tipoDetectado;
   final String resumen;
   final List<Hallazgo> hallazgos;
 
-  /// Hallazgos ordenados por severidad (alta, media, baja), conservando el
-  /// orden original dentro de cada severidad.
   List<Hallazgo> get hallazgosOrdenados {
     final indexados = hallazgos.indexed.toList()
       ..sort((a, b) {

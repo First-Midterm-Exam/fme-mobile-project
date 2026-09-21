@@ -4,19 +4,15 @@ import 'package:http/http.dart' as http;
 
 import 'datos_simulados.dart';
 
-/// Cliente HTTP que responde como el backend Laravel pero con datos fijos.
-///
-/// Los repositorios reales lo usan igual que a un servidor, así que el parseo
-/// y el manejo de errores se ejercitan sin tener el backend disponible.
 class BackendSimulado extends http.BaseClient {
   BackendSimulado({
     required Uri baseUrl,
     this.latencia = const Duration(milliseconds: 700),
-  }) : _prefijo = baseUrl.path.endsWith('/')
-           ? baseUrl.path.substring(0, baseUrl.path.length - 1)
-           : baseUrl.path;
+  }) : _prefijo = _sinBarraFinal(baseUrl.path),
+       _urlBase = _sinBarraFinal(baseUrl.toString());
 
   final String _prefijo;
+  final String _urlBase;
   final Duration latencia;
 
   @override
@@ -36,6 +32,12 @@ class BackendSimulado extends http.BaseClient {
     }
     if (!autorizado) {
       return _json(401, {'message': 'Unauthenticated.'});
+    }
+    final descarga = RegExp(
+      r'^GET /asistente/archivos/([^/]+)/descarga$',
+    ).firstMatch(metodoRuta);
+    if (descarga != null) {
+      return _archivo(descarga.group(1)!);
     }
     return switch (metodoRuta) {
       'POST /logout' => _vacio(204),
@@ -75,8 +77,30 @@ class BackendSimulado extends http.BaseClient {
     if (pregunta.isEmpty || datos['appraisal_id'] is! int) {
       return _json(422, {'message': 'The given data was invalid.'});
     }
-    return _json(200, respuestaAsistenteSimulada(pregunta));
+    return _json(200, respuestaAsistenteSimulada(pregunta, urlBase: _urlBase));
   }
+
+  http.StreamedResponse _archivo(String id) {
+    final bytes = archivoSimulado(id);
+    if (bytes == null) {
+      return _json(404, {'message': 'Not Found'});
+    }
+    final esPdf = id.endsWith('.pdf');
+    return http.StreamedResponse(
+      Stream.value(bytes),
+      200,
+      contentLength: bytes.length,
+      headers: {
+        'content-type': esPdf
+            ? 'application/pdf'
+            : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'content-disposition': 'attachment; filename="reporte-$id"',
+      },
+    );
+  }
+
+  static String _sinBarraFinal(String texto) =>
+      texto.endsWith('/') ? texto.substring(0, texto.length - 1) : texto;
 
   static Map<String, dynamic> _leerJson(List<int> cuerpo) {
     try {

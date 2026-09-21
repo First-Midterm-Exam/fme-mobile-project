@@ -1,8 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-/// Guarda el token de sesión en el almacenamiento seguro del sistema
-/// (Android Keystore) y mantiene una copia en memoria para no leer el disco
-/// en cada petición.
 class SesionStorage {
   SesionStorage([FlutterSecureStorage? almacenamiento])
     : _almacenamiento = almacenamiento ?? const FlutterSecureStorage();

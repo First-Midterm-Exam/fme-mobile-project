@@ -13,11 +13,6 @@ abstract final class Rutas {
   static const principal = '/principal';
 }
 
-/// Router de la app. Se reevalúa cada vez que cambia la sesión o el appraisal
-/// activo:
-/// - sin sesión, siempre se muestra el login;
-/// - con sesión y sin appraisal elegido, la lista de appraisals;
-/// - con sesión y appraisal elegido, la pantalla principal.
 GoRouter crearRouter(SesionController sesion, AppraisalController appraisals) {
   return GoRouter(
     initialLocation: Rutas.login,

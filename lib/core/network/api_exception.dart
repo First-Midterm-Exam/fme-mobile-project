@@ -1,9 +1,9 @@
-/// Categorías de error que la interfaz sabe manejar.
 enum TipoErrorApi {
   credencialesInvalidas,
   sesionExpirada,
   sinPermiso,
   archivoDemasiadoGrande,
+  noEncontrado,
   datosInvalidos,
   demasiadasSolicitudes,
   servicioNoDisponible,
@@ -13,7 +13,6 @@ enum TipoErrorApi {
   respuestaInvalida,
 }
 
-/// Error de la API con un mensaje listo para mostrar al usuario en español.
 class ApiException implements Exception {
   const ApiException(
     this.tipo,
@@ -22,10 +21,6 @@ class ApiException implements Exception {
     this.reintentarEn,
   });
 
-  /// Crea la excepción correspondiente a un código de estado HTTP.
-  ///
-  /// [mensajes] permite que cada endpoint personalice el texto de un código
-  /// concreto (por ejemplo, qué significa un 422 al revisar un documento).
   factory ApiException.desdeEstado(
     int codigo, {
     bool autenticado = true,
@@ -36,6 +31,7 @@ class ApiException implements Exception {
       401 when !autenticado => TipoErrorApi.credencialesInvalidas,
       401 => TipoErrorApi.sesionExpirada,
       403 => TipoErrorApi.sinPermiso,
+      404 || 410 => TipoErrorApi.noEncontrado,
       413 => TipoErrorApi.archivoDemasiadoGrande,
       422 => TipoErrorApi.datosInvalidos,
       429 => TipoErrorApi.demasiadasSolicitudes,
@@ -68,10 +64,8 @@ class ApiException implements Exception {
   final String mensaje;
   final int? codigoEstado;
 
-  /// Tiempo sugerido por el encabezado `Retry-After` (solo en 429).
   final Duration? reintentarEn;
 
-  /// Indica si tiene sentido mostrar el botón "Reintentar".
   bool get esReintentable => switch (tipo) {
     TipoErrorApi.sinConexion ||
     TipoErrorApi.tiempoAgotado ||
@@ -90,6 +84,8 @@ class ApiException implements Exception {
         'El correo o la contraseña no son correctos.',
       TipoErrorApi.sesionExpirada => mensajeSesionExpirada,
       TipoErrorApi.sinPermiso => mensajeSinPermiso,
+      TipoErrorApi.noEncontrado =>
+        'El recurso solicitado ya no está disponible.',
       TipoErrorApi.archivoDemasiadoGrande =>
         'El archivo es demasiado grande para enviarlo.',
       TipoErrorApi.datosInvalidos => 'Los datos enviados no son válidos.',
