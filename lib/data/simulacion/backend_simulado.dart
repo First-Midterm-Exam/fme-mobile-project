@@ -62,7 +62,8 @@ class BackendSimulado extends http.BaseClient {
         },
       });
     }
-    if (email.toLowerCase() != emailDemo || password != passwordDemo) {
+    if (email.toLowerCase() != emailRegistrado ||
+        password != passwordRegistrado) {
       return _json(401, {'message': 'Invalid credentials.'});
     }
     return _json(200, {'token': tokenSimulado, 'user': usuarioSimulado});

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 
 import '../../app/rutas.dart';
-import '../sesion/sesion_controller.dart';
+import '../sesion/menu_usuario.dart';
 
 /// Pantalla 3: principal, con las pestañas "Asistente" y "Documento".
 ///
@@ -30,20 +29,20 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
             icon: const Icon(Icons.swap_horiz),
             onPressed: () => context.go(Rutas.appraisals),
           ),
-          IconButton(
-            tooltip: 'Cerrar sesión',
-            icon: const Icon(Icons.logout),
-            onPressed: context.read<SesionController>().cerrarSesion,
-          ),
+          const MenuUsuario(),
+          const SizedBox(width: 8),
         ],
       ),
       body: IndexedStack(
         index: _pestana,
         children: const [
-          _PestanaVacia(icono: Icons.mic, texto: 'Asistente (etapa 4)'),
+          _PestanaVacia(
+            icono: Icons.mic,
+            texto: 'Consulta la preparación del appraisal',
+          ),
           _PestanaVacia(
             icono: Icons.document_scanner,
-            texto: 'Documento (etapa 3)',
+            texto: 'Revisa el formato de un documento',
           ),
         ],
       ),
@@ -75,13 +74,26 @@ class _PestanaVacia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tema = Theme.of(context);
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icono, size: 64),
-          const SizedBox(height: 8),
-          Text(texto),
+          Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: tema.colorScheme.primaryContainer,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icono, size: 48, color: tema.colorScheme.primary),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            texto,
+            style: tema.textTheme.titleMedium?.copyWith(
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
+          ),
         ],
       ),
     );

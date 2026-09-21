@@ -74,15 +74,21 @@ class SesionController extends ChangeNotifier {
     _cambiarEstado(EstadoSesion.autenticada);
   }
 
-  /// Cierra la sesión en el servidor (si se puede) y siempre localmente.
+  /// Cierra la sesión localmente de inmediato y avisa al servidor en segundo
+  /// plano, para que el usuario no espere si no hay conexión.
+  ///
+  /// La petición toma el token al iniciarse, antes de que se borre.
   Future<void> cerrarSesion() async {
-    try {
-      await _auth.cerrarSesion();
-    } on ApiException {
-      // Aunque el servidor falle, la sesión local se cierra igual.
-    }
+    _auth.cerrarSesion().ignore();
     await _limpiar();
     _aviso = null;
+    _cambiarEstado(EstadoSesion.sinSesion);
+  }
+
+  /// Descarta un token guardado que no se pudo validar (por ejemplo, sin
+  /// conexión) para permitir ingresar con otra cuenta.
+  Future<void> descartarSesionGuardada() async {
+    await _limpiar();
     _cambiarEstado(EstadoSesion.sinSesion);
   }
 

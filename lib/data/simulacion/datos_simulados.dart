@@ -1,14 +1,14 @@
 // Datos estáticos que imitan las respuestas del backend Laravel.
 // Se reemplazan por las respuestas reales al poner USE_MOCK=false en `.env`.
 
-const emailDemo = 'demo@empresa.com';
-const passwordDemo = 'Demo1234';
+const emailRegistrado = 'mfernandez@empresa.com';
+const passwordRegistrado = 'Readiness2026';
 const tokenSimulado = 'token-simulado-asistente-movil';
 
 const Map<String, Object?> usuarioSimulado = {
   'id': 1,
   'nombre': 'María Fernández',
-  'email': emailDemo,
+  'email': emailRegistrado,
   'rol': {'id': 2, 'nombre': 'Gestor de Procesos'},
 };
 

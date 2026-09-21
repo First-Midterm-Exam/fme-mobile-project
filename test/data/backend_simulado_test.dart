@@ -25,14 +25,14 @@ void main() {
     );
   });
 
-  test('login demo y consumo de todos los endpoints', () async {
+  test('inicio de sesión y consumo de todos los endpoints', () async {
     final sesion = await AuthRepository(
       api,
-    ).iniciarSesion(email: emailDemo, password: passwordDemo);
+    ).iniciarSesion(email: emailRegistrado, password: passwordRegistrado);
     token = sesion.token;
 
     expect(sesion.usuario.rol?.nombre, 'Gestor de Procesos');
-    expect((await AuthRepository(api).usuarioActual()).email, emailDemo);
+    expect((await AuthRepository(api).usuarioActual()).email, emailRegistrado);
     expect(await AppraisalRepository(api).listarActivos(), hasLength(2));
 
     final revision = await DocumentoRepository(
@@ -50,7 +50,7 @@ void main() {
 
   test('credenciales incorrectas dan un mensaje que no revela el correo', () {
     expect(
-      AuthRepository(api).iniciarSesion(email: emailDemo, password: 'x'),
+      AuthRepository(api).iniciarSesion(email: emailRegistrado, password: 'x'),
       throwsA(
         isA<ApiException>().having(
           (e) => e.mensaje,
