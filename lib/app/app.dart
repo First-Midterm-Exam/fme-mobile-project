@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../features/sesion/sesion_controller.dart';
 import 'dependencias.dart';
 import 'rutas.dart';
+import 'tema.dart';
 
 class AsistenteReadinessApp extends StatefulWidget {
   const AsistenteReadinessApp({required this.dependencias, super.key});
@@ -57,8 +58,8 @@ class _AsistenteReadinessAppState extends State<AsistenteReadinessApp> {
       child: MaterialApp.router(
         title: 'Asistente Readiness',
         debugShowCheckedModeBanner: false,
-        theme: _tema(Brightness.light),
-        darkTheme: _tema(Brightness.dark),
+        theme: TemaApp.claro(),
+        darkTheme: TemaApp.oscuro(),
         locale: const Locale('es'),
         supportedLocales: const [Locale('es')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
@@ -66,11 +67,4 @@ class _AsistenteReadinessAppState extends State<AsistenteReadinessApp> {
       ),
     );
   }
-
-  static ThemeData _tema(Brightness brillo) => ThemeData(
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: const Color(0xFF1E5AA8),
-      brightness: brillo,
-    ),
-  );
 }
