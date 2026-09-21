@@ -7,10 +7,6 @@ import '../../data/repositories/appraisal_repository.dart';
 
 enum EstadoAppraisals { sinCargar, cargando, listo, error }
 
-/// Lista de appraisals disponibles y el appraisal activo.
-///
-/// El appraisal elegido se recuerda entre sesiones. Si el usuario solo tiene
-/// uno, se selecciona automáticamente.
 class AppraisalController extends ChangeNotifier {
   AppraisalController({
     required AppraisalRepository repositorio,
@@ -62,8 +58,6 @@ class AppraisalController extends ChangeNotifier {
     await _preferencias.guardarAppraisalId(appraisal.id);
   }
 
-  /// Olvida la lista en memoria al cerrar sesión. La preferencia guardada se
-  /// conserva para la próxima sesión.
   void reiniciar() {
     _version++;
     _estado = EstadoAppraisals.sinCargar;
@@ -85,7 +79,6 @@ class AppraisalController extends ChangeNotifier {
       return lista.single;
     }
     if (idGuardado != null) {
-      // El appraisal guardado ya no está disponible para este usuario.
       await _preferencias.borrarAppraisalId();
     }
     return null;

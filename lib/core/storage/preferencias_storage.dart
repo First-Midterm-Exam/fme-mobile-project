@@ -1,6 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Preferencias no sensibles. Solo guarda el id del appraisal seleccionado.
 class PreferenciasStorage {
   PreferenciasStorage._(this._preferencias);
 

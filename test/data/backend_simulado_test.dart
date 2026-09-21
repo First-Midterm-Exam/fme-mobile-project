@@ -10,7 +10,6 @@ import 'package:fme_mobile_project/data/repositories/documento_repository.dart';
 import 'package:fme_mobile_project/data/simulacion/backend_simulado.dart';
 import 'package:fme_mobile_project/data/simulacion/datos_simulados.dart';
 
-/// Verifica que los repositorios reales funcionan contra el backend simulado.
 void main() {
   final base = Uri.parse('http://10.0.2.2:8000/api');
   late String? token;

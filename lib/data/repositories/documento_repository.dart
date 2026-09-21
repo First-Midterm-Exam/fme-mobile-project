@@ -24,7 +24,6 @@ class DocumentoRepository {
 
   final ApiClient _api;
 
-  /// Envía la foto (JPEG) al modelo que analiza el formato.
   Future<RevisionFormato> revisarFormato(Uint8List imagenJpeg) async {
     final json = await _api.postArchivo(
       '/documentos/revision-formato',

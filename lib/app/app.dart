@@ -44,7 +44,6 @@ class _AsistenteReadinessAppState extends State<AsistenteReadinessApp> {
     unawaited(_sesion.verificarSesionGuardada());
   }
 
-  /// Carga los appraisals al iniciar sesión y los olvida al cerrarla.
   void _alCambiarSesion() {
     final estado = _sesion.estado;
     if (estado == _estadoAnterior) {
@@ -77,6 +76,9 @@ class _AsistenteReadinessAppState extends State<AsistenteReadinessApp> {
         Provider.value(value: dependencias.documentos),
         Provider.value(value: dependencias.asistente),
         Provider.value(value: dependencias.camara),
+        Provider.value(value: dependencias.reconocedor),
+        Provider.value(value: dependencias.lector),
+        Provider.value(value: dependencias.archivos),
         ChangeNotifierProvider.value(value: _sesion),
         ChangeNotifierProvider.value(value: _appraisals),
       ],

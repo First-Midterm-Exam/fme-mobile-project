@@ -14,7 +14,6 @@ enum PasoDocumento {
   resultado,
 }
 
-/// Flujo de la pestaña "Documento": foto, vista previa, envío y resultado.
 class DocumentoController extends ChangeNotifier {
   DocumentoController({
     required DocumentoRepository repositorio,
@@ -38,7 +37,6 @@ class DocumentoController extends ChangeNotifier {
   Uint8List? get foto => _foto;
   RevisionFormato? get resultado => _resultado;
 
-  /// Mensaje de error o advertencia del paso actual.
   String? get aviso => _aviso;
   bool get avisoReintentable => _avisoReintentable;
   bool get permisoPermanente => _permisoPermanente;
@@ -78,7 +76,6 @@ class DocumentoController extends ChangeNotifier {
     }
   }
 
-  /// Si Android cerró la app mientras la cámara estaba abierta, retoma la foto.
   Future<void> recuperarFotoPendiente() async {
     final foto = await _camara.recuperarFotoPendiente();
     if (foto != null && _paso == PasoDocumento.inicio) {
@@ -108,7 +105,6 @@ class DocumentoController extends ChangeNotifier {
 
   Future<void> abrirAjustes() => _camara.abrirAjustes();
 
-  /// Vuelve al inicio de la pestaña y descarta la foto y el resultado.
   void reiniciar() {
     _paso = PasoDocumento.inicio;
     _foto = null;

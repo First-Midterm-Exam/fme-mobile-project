@@ -32,11 +32,9 @@ class Usuario {
   final String nombre;
   final String email;
 
-  /// Puede faltar si el backend no lo envía.
   final Rol? rol;
 }
 
-/// Resultado de `POST /login`.
 class SesionIniciada {
   const SesionIniciada({required this.token, required this.usuario});
 

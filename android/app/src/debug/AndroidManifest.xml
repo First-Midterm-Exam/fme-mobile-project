@@ -5,7 +5,5 @@
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
 
-    <!-- Solo en depuración: permite HTTP sin cifrar para el Laravel local
-         (por ejemplo http://10.0.2.2:8000). La compilación release no lo hereda. -->
     <application android:usesCleartextTraffic="true" />
 </manifest>

@@ -15,7 +15,6 @@ const _usuario = {
   'rol': {'id': 2, 'nombre': 'Gestor de Procesos'},
 };
 
-/// Respuesta JSON en UTF-8, como la envía Laravel.
 http.Response _json(int codigo, Object cuerpo) =>
     http.Response.bytes(utf8.encode(jsonEncode(cuerpo)), codigo);
 

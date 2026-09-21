@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Mensaje de error centrado con botón "Reintentar" opcional y una acción
-/// secundaria opcional.
 class ErrorReintentar extends StatelessWidget {
   const ErrorReintentar({
     required this.mensaje,
@@ -25,7 +23,11 @@ class ErrorReintentar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off, size: 48, color: tema.colorScheme.error),
+            Icon(
+              Icons.cloud_off_outlined,
+              size: 36,
+              color: tema.colorScheme.onSurfaceVariant,
+            ),
             const SizedBox(height: 16),
             Text(
               mensaje,
@@ -34,10 +36,9 @@ class ErrorReintentar extends StatelessWidget {
             ),
             if (alReintentar != null) ...[
               const SizedBox(height: 16),
-              FilledButton.icon(
+              FilledButton(
                 onPressed: alReintentar,
-                icon: const Icon(Icons.refresh),
-                label: const Text('Reintentar'),
+                child: const Text('Reintentar'),
               ),
             ],
             if (textoSecundario != null && alAccionSecundaria != null) ...[

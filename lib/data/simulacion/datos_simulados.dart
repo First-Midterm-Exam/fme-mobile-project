@@ -1,5 +1,6 @@
-// Datos estáticos que imitan las respuestas del backend Laravel.
-// Se reemplazan por las respuestas reales al poner USE_MOCK=false en `.env`.
+import 'dart:typed_data';
+
+import 'archivos_simulados.dart';
 
 const emailRegistrado = 'mfernandez@empresa.com';
 const passwordRegistrado = 'Readiness2026';
@@ -56,7 +57,6 @@ const Map<String, Object?> revisionFormatoSimulada = {
   ],
 };
 
-/// Respuestas del asistente según palabras clave de la pregunta.
 const Map<String, Map<String, Object?>> respuestasAsistenteSimuladas = {
   'que_nos_falta': {
     'resumen_voz':
@@ -143,18 +143,74 @@ const Map<String, Map<String, Object?>> respuestasAsistenteSimuladas = {
   },
 };
 
-/// Elige la respuesta simulada según palabras clave de la pregunta.
-Map<String, Object?> respuestaAsistenteSimulada(String pregunta) {
+String _claveRespuesta(String texto) => switch (texto) {
+  _ when texto.contains('falta') => 'que_nos_falta',
+  _ when texto.contains('gap') => 'gaps_criticos',
+  _ when texto.contains('vencid') => 'acciones_vencidas',
+  _ when texto.contains('área') || texto.contains('area') =>
+    'cumplimiento_area',
+  _ when texto.contains('semana') || texto.contains('mejor') =>
+    'progreso_semanal',
+  _ => 'general',
+};
+
+String? _formatoSolicitado(String texto) {
+  if (texto.contains('excel') ||
+      texto.contains('xlsx') ||
+      texto.contains('hoja de cálculo')) {
+    return 'xlsx';
+  }
+  if (texto.contains('pdf') ||
+      texto.contains('reporte') ||
+      texto.contains('informe') ||
+      texto.contains('exporta')) {
+    return 'pdf';
+  }
+  return null;
+}
+
+Map<String, Object?> respuestaAsistenteSimulada(
+  String pregunta, {
+  required String urlBase,
+}) {
   final texto = pregunta.toLowerCase();
-  final clave = switch (texto) {
-    _ when texto.contains('falta') => 'que_nos_falta',
-    _ when texto.contains('gap') => 'gaps_criticos',
-    _ when texto.contains('vencid') => 'acciones_vencidas',
-    _ when texto.contains('área') || texto.contains('area') =>
-      'cumplimiento_area',
-    _ when texto.contains('semana') || texto.contains('mejor') =>
-      'progreso_semanal',
-    _ => 'general',
+  final clave = _claveRespuesta(texto);
+  final respuesta = respuestasAsistenteSimuladas[clave]!;
+  final formato = _formatoSolicitado(texto);
+  if (formato == null) {
+    return respuesta;
+  }
+  final id = '$clave.$formato';
+  final nombreFormato = formato == 'pdf' ? 'PDF' : 'Excel';
+  return {
+    ...respuesta,
+    'resumen_voz':
+        'Listo. Generé el reporte en $nombreFormato con los datos actuales '
+        'del appraisal. Puedes abrirlo o descargarlo desde la respuesta.',
+    'archivo': {
+      'id': id,
+      'formato': formato,
+      'nombre': 'reporte-${clave.replaceAll('_', '-')}-2026-09-21.$formato',
+      'url': '$urlBase/asistente/archivos/$id/descarga',
+      'tamano_bytes': null,
+      'expira_en': '2026-09-22T15:04:00Z',
+    },
   };
-  return respuestasAsistenteSimuladas[clave]!;
+}
+
+Uint8List? archivoSimulado(String id) {
+  final partes = id.split('.');
+  if (partes.length != 2) {
+    return null;
+  }
+  final respuesta = respuestasAsistenteSimuladas[partes.first];
+  if (respuesta == null) {
+    return null;
+  }
+  final tabla = tablaDesdeMarkdown('${respuesta['reporte_markdown']}');
+  return switch (partes.last) {
+    'pdf' => generarPdf(tabla.titulo, tabla.filas),
+    'xlsx' => generarXlsx(tabla.titulo, tabla.filas),
+    _ => null,
+  };
 }

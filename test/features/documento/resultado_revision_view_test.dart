@@ -54,7 +54,7 @@ void main() {
 
     expect(alta, lessThan(media));
     expect(media, lessThan(baja));
-    expect(find.text('Hallazgos (3)'), findsOneWidget);
+    expect(find.text('HALLAZGOS (3)'), findsOneWidget);
   });
 
   testWidgets('muestra la insignia verde cuando cumple', (tester) async {

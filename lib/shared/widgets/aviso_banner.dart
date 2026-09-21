@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../app/tema.dart';
 
-/// Recuadro para avisos y errores dentro de un formulario o una pestaña.
 class AvisoBanner extends StatelessWidget {
   const AvisoBanner({
     required this.mensaje,
@@ -14,7 +13,6 @@ class AvisoBanner extends StatelessWidget {
   final String mensaje;
   final bool esError;
 
-  /// Si no es `null`, muestra el botón "Reintentar".
   final VoidCallback? alReintentar;
 
   @override

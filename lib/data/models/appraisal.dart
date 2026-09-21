@@ -17,7 +17,6 @@ class Appraisal {
     fechaMeta: json.fechaOpcional('fecha_meta'),
   );
 
-  /// Lee la lista de `GET /appraisals`, que viene dentro de `data`.
   static List<Appraisal> listaFromJson(Map<String, dynamic> json) => json
       .listaDeObjetos('data')
       .map(Appraisal.fromJson)

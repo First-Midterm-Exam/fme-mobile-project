@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import '../../core/network/api_client.dart';
 import '../../core/network/lectura_json.dart';
 import '../models/respuesta_asistente.dart';
@@ -14,6 +16,13 @@ class AsistenteRepository {
         'más tarde.',
   };
 
+  static const mensajesDescarga = {
+    404: 'El archivo ya no está disponible. Vuelve a pedir el reporte.',
+    410: 'El archivo ya no está disponible. Vuelve a pedir el reporte.',
+    503:
+        'No se pudo descargar el archivo en este momento. Inténtalo más tarde.',
+  };
+
   final ApiClient _api;
 
   Future<RespuestaAsistente> consultar({
@@ -28,4 +37,10 @@ class AsistenteRepository {
     );
     return parsearRespuesta(() => RespuestaAsistente.fromJson(json));
   }
+
+  Future<Uint8List> descargarArchivo(ArchivoReporte archivo) => _api.descargar(
+    _api.resolver(archivo.url),
+    tiempoEspera: tiempoEspera,
+    mensajes: mensajesDescarga,
+  );
 }

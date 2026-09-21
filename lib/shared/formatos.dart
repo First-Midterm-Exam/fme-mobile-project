@@ -1,13 +1,16 @@
-/// Formatos de presentación en español.
 abstract final class Formatos {
-  /// Fecha como `dd/MM/aaaa`.
   static String fecha(DateTime fecha) {
     final dia = fecha.day.toString().padLeft(2, '0');
     final mes = fecha.month.toString().padLeft(2, '0');
     return '$dia/$mes/${fecha.year}';
   }
 
-  /// Tamaño de archivo legible, por ejemplo `1,2 MB` o `850 KB`.
+  static String hora(DateTime fecha) {
+    final horas = fecha.hour.toString().padLeft(2, '0');
+    final minutos = fecha.minute.toString().padLeft(2, '0');
+    return '$horas:$minutos';
+  }
+
   static String tamano(int bytes) {
     const kb = 1024;
     const mb = kb * 1024;
@@ -17,7 +20,6 @@ abstract final class Formatos {
     return '${(bytes / kb).ceil()} KB';
   }
 
-  /// Días que faltan para [meta] contados desde [hoy].
   static String plazo(DateTime meta, {DateTime? hoy}) {
     final base = hoy ?? DateTime.now();
     final inicio = DateTime(base.year, base.month, base.day);

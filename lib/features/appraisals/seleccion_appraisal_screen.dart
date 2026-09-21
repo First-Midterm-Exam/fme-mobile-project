@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../shared/widgets/error_reintentar.dart';
+import '../../shared/widgets/estructura.dart';
 import '../sesion/menu_usuario.dart';
 import 'appraisal_controller.dart';
 import 'tarjeta_appraisal.dart';
 
-/// Pantalla 2: appraisals a los que el usuario tiene acceso.
-///
-/// Al elegir uno, el router abre la pantalla principal.
 class SeleccionAppraisalScreen extends StatelessWidget {
   const SeleccionAppraisalScreen({super.key});
 
@@ -30,58 +28,39 @@ class SeleccionAppraisalScreen extends StatelessWidget {
     } else {
       contenido = RefreshIndicator(
         onRefresh: controlador.cargar,
-        child: ListView.separated(
-          padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-          itemCount: controlador.appraisals.length + 1,
-          separatorBuilder: (_, _) => const SizedBox(height: 12),
-          itemBuilder: (context, indice) {
-            if (indice == 0) {
-              return const _Encabezado();
-            }
-            final appraisal = controlador.appraisals[indice - 1];
-            return TarjetaAppraisal(
-              appraisal: appraisal,
-              seleccionado: appraisal.id == controlador.seleccionado?.id,
-              alTocar: () => controlador.seleccionar(appraisal),
-            );
-          },
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+          children: [
+            const TituloSeccion('Appraisals activos'),
+            GrupoSeccion(
+              children: [
+                for (final appraisal in controlador.appraisals)
+                  FilaAppraisal(
+                    appraisal: appraisal,
+                    seleccionado: appraisal.id == controlador.seleccionado?.id,
+                    alTocar: () => controlador.seleccionar(appraisal),
+                  ),
+              ],
+            ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(4, 12, 4, 0),
+              child: TextoSecundario(
+                'El asistente y la revisión de documentos trabajarán con el '
+                'appraisal que elijas. Puedes cambiarlo después desde la '
+                'pantalla principal.',
+              ),
+            ),
+          ],
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mis appraisals'),
+        title: const Text('Seleccionar appraisal'),
         actions: const [MenuUsuario(), SizedBox(width: 8)],
       ),
       body: contenido,
-    );
-  }
-}
-
-class _Encabezado extends StatelessWidget {
-  const _Encabezado();
-
-  @override
-  Widget build(BuildContext context) {
-    final tema = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Elige un appraisal', style: tema.textTheme.titleLarge),
-          const SizedBox(height: 4),
-          Text(
-            'El asistente y la revisión de documentos trabajarán con el '
-            'appraisal que elijas. Puedes cambiarlo después desde el '
-            'encabezado.',
-            style: tema.textTheme.bodyMedium?.copyWith(
-              color: tema.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -98,30 +77,20 @@ class _SinAppraisals extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.inbox_outlined,
-              size: 56,
-              color: tema.colorScheme.onSurfaceVariant,
-            ),
-            const SizedBox(height: 16),
             Text(
               'No tienes appraisals activos',
               style: tema.textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Text(
-              'Pide a un administrador de la plataforma que te asigne a un '
-              'proyecto con un appraisal activo.',
-              textAlign: TextAlign.center,
-              style: tema.textTheme.bodyMedium?.copyWith(
-                color: tema.colorScheme.onSurfaceVariant,
-              ),
+            const TextoSecundario(
+              'Solicita a un administrador de la plataforma que te asigne a '
+              'un proyecto con un appraisal activo.',
+              alineacion: TextAlign.center,
             ),
-            const SizedBox(height: 16),
-            OutlinedButton.icon(
+            const SizedBox(height: 20),
+            OutlinedButton(
               onPressed: context.read<AppraisalController>().cargar,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Actualizar'),
+              child: const Text('Actualizar'),
             ),
           ],
         ),
