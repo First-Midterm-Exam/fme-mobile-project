@@ -8,7 +8,6 @@ import '../data/repositories/appraisal_repository.dart';
 import '../data/repositories/asistente_repository.dart';
 import '../data/repositories/auth_repository.dart';
 import '../data/repositories/documento_repository.dart';
-import '../data/simulacion/backend_simulado.dart';
 import '../features/asistente/servicios/archivos_reporte.dart';
 import '../features/asistente/servicios/lector_voz.dart';
 import '../features/asistente/servicios/reconocedor_voz.dart';
@@ -28,12 +27,9 @@ class Dependencias {
   static Future<Dependencias> crear(AppConfig config) async {
     final sesionStorage = SesionStorage();
     final preferencias = await PreferenciasStorage.crear();
-    final httpClient = config.usarSimulacion
-        ? BackendSimulado(baseUrl: config.apiBaseUrl)
-        : http.Client();
     final apiClient = ApiClient(
       baseUrl: config.apiBaseUrl,
-      httpClient: httpClient,
+      httpClient: http.Client(),
       leerToken: () => sesionStorage.token,
     );
     return Dependencias._(
