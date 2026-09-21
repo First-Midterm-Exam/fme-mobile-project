@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/appraisals/appraisal_controller.dart';
 import '../features/appraisals/seleccion_appraisal_screen.dart';
 import '../features/principal/principal_screen.dart';
 import '../features/sesion/login_screen.dart';
@@ -11,18 +13,24 @@ abstract final class Rutas {
   static const principal = '/principal';
 }
 
-/// Router de la app. Se reevalúa cada vez que cambia la sesión: sin sesión
-/// siempre se muestra el login; con sesión, el login redirige a appraisals.
-GoRouter crearRouter(SesionController sesion) {
+/// Router de la app. Se reevalúa cada vez que cambia la sesión o el appraisal
+/// activo:
+/// - sin sesión, siempre se muestra el login;
+/// - con sesión y sin appraisal elegido, la lista de appraisals;
+/// - con sesión y appraisal elegido, la pantalla principal.
+GoRouter crearRouter(SesionController sesion, AppraisalController appraisals) {
   return GoRouter(
     initialLocation: Rutas.login,
-    refreshListenable: sesion,
+    refreshListenable: Listenable.merge([sesion, appraisals]),
     redirect: (context, state) {
-      final enLogin = state.matchedLocation == Rutas.login;
+      final ubicacion = state.matchedLocation;
       if (sesion.estado != EstadoSesion.autenticada) {
-        return enLogin ? null : Rutas.login;
+        return ubicacion == Rutas.login ? null : Rutas.login;
       }
-      return enLogin ? Rutas.appraisals : null;
+      final destino = appraisals.seleccionado == null
+          ? Rutas.appraisals
+          : Rutas.principal;
+      return ubicacion == destino ? null : destino;
     },
     routes: [
       GoRoute(

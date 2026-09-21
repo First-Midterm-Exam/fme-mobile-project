@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../../app/rutas.dart';
+import '../../app/tema.dart';
+import '../appraisals/selector_appraisal.dart';
+import '../documento/documento_tab.dart';
 import '../sesion/menu_usuario.dart';
 
 /// Pantalla 3: principal, con las pestañas "Asistente" y "Documento".
@@ -22,16 +23,14 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Asistente Readiness'),
-        actions: [
-          IconButton(
-            tooltip: 'Cambiar appraisal',
-            icon: const Icon(Icons.swap_horiz),
-            onPressed: () => context.go(Rutas.appraisals),
-          ),
-          const MenuUsuario(),
-          const SizedBox(width: 8),
-        ],
+        toolbarHeight: 68,
+        titleSpacing: 12,
+        title: const SelectorAppraisal(),
+        flexibleSpace: const DecoratedBox(
+          decoration: BoxDecoration(gradient: ColoresMarca.degradado),
+          child: SizedBox.expand(),
+        ),
+        actions: const [MenuUsuario(), SizedBox(width: 8)],
       ),
       body: IndexedStack(
         index: _pestana,
@@ -40,10 +39,7 @@ class _PrincipalScreenState extends State<PrincipalScreen> {
             icono: Icons.mic,
             texto: 'Consulta la preparación del appraisal',
           ),
-          _PestanaVacia(
-            icono: Icons.document_scanner,
-            texto: 'Revisa el formato de un documento',
-          ),
+          DocumentoTab(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
